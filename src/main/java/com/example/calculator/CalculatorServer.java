@@ -12,7 +12,7 @@ import java.net.InetSocketAddress;
 
 public class CalculatorServer {
     public static void main(String[] args) throws IOException {
-        HttpServer server = HttpServer.create(new InetSocketAddress("0.0.0.0",8080), 0);
+        HttpServer server = HttpServer.create(new InetSocketAddress(8080), 0);
         
         server.createContext("/", new StaticFileHandler("resources/public/index.html"));
         server.createContext("/styles.css", new StaticFileHandler("resources/public/styles.css"));
@@ -34,9 +34,9 @@ class StaticFileHandler implements HttpHandler {
     @Override
     public void handle(HttpExchange exchange) throws IOException {
         byte[] response = Files.readAllBytes(Paths.get(filePath));
-        exchange.sendResponseHeaders(200, response.length);
+        exchange.sendResponseHeaders(200, response.length());
         OutputStream os = exchange.getResponseBody();
-        os.write(response);
+        os.write(response.getBytes());
         os.close();
     }
 }

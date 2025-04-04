@@ -12,7 +12,7 @@ import java.net.InetSocketAddress;
 
 public class CalculatorServer {
     public static void main(String[] args) throws IOException {
-        HttpServer server = HttpServer.create(new InetSocketAddress(8080), 0);
+        HttpServer server = HttpServer.create(new InetSocketAddress(0,8080), 0);
         
         server.createContext("/", new StaticFileHandler("resources/public/index.html"));
         server.createContext("/styles.css", new StaticFileHandler("resources/public/styles.css"));

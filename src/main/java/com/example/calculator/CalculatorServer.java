@@ -6,18 +6,17 @@ import com.sun.net.httpserver.HttpExchange;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.io.InputStream;
 import java.net.InetSocketAddress;
 
 public class CalculatorServer {
     public static void main(String[] args) throws IOException {
         HttpServer server = HttpServer.create(new InetSocketAddress(8080), 0);
-        
-        server.createContext("/", new StaticFileHandler("resources/public/index.html"));
-        server.createContext("/styles.css", new StaticFileHandler("resources/public/styles.css"));
-        server.createContext("/script.js", new StaticFileHandler("resources/public/script.js"));
-        
+
+        server.createContext("/", new StaticFileHandler("public/index.html"));
+        server.createContext("/styles.css", new StaticFileHandler("public/styles.css"));
+        server.createContext("/script.js", new StaticFileHandler("public/script.js"));
+
         server.setExecutor(null);
         server.start();
         System.out.println("Server started on http://localhost:8080");
@@ -25,18 +24,26 @@ public class CalculatorServer {
 }
 
 class StaticFileHandler implements HttpHandler {
-    private final String filePath;
-    
-    public StaticFileHandler(String filePath) {
-        this.filePath = filePath;
+    private final String resourcePath;
+
+    public StaticFileHandler(String resourcePath) {
+        this.resourcePath = resourcePath;
     }
-    
+
     @Override
     public void handle(HttpExchange exchange) throws IOException {
-        byte[] response = Files.readAllBytes(Paths.get(filePath));
-        exchange.sendResponseHeaders(200, response.length());
+        InputStream inputStream = getClass().getClassLoader().getResourceAsStream(resourcePath);
+        
+        if (inputStream == null) {
+            exchange.sendResponseHeaders(404, -1);
+            return;
+        }
+        
+        byte[] response = inputStream.readAllBytes();
+        exchange.sendResponseHeaders(200, response.length);
         OutputStream os = exchange.getResponseBody();
-        os.write(response.getBytes());
+        os.write(response);
         os.close();
     }
 }
+
